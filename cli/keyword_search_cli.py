@@ -4,6 +4,8 @@ import argparse
 import json
 import string
 
+from nltk.stem import PorterStemmer
+
 
 def read_json() -> dict:
     """Reads the json movies file and returns it as a dictionary"""
@@ -12,11 +14,24 @@ def read_json() -> dict:
     return movies_dict
 
 
+def read_stopwords() -> list:
+    """Reads the txt file of words to remove from query results"""
+    with open("data/stopwords.txt", "r") as file:
+        stopwords_string = file.read()
+        stopwords_list = stopwords_string.splitlines()
+    return stopwords_list
+
+
 def tokenize_strings(string: str) -> list:
-    """Break strings into a list of single word tokens"""
+    """Break strings into a list of single word tokens, conver to lowercase, and remove stopwords"""
     split_string = string.split()
+    stemmer = PorterStemmer()
     # create token list as a list comprehension
-    token_list = [token.lower() for token in split_string if token != ""]
+    token_list = [
+        stemmer.stem(token.lower())
+        for token in split_string
+        if token != "" and token not in read_stopwords()
+    ]
 
     """
     # create token list with a for loop
