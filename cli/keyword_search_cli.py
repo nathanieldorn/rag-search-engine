@@ -33,24 +33,30 @@ def search_movies(movies_dict: dict, query: str) -> list:
     """Returns a list of movie titles from the json that contain the query string"""
     # create a table to remove all punctation from query and title strings
     translation_table = str.maketrans("", "", string.punctuation)
-    clean_query = query.translate(translation_table).lower()
-    split_query = clean_query.split()
+    clean_query = query.translate(translation_table)
+    # split_query = clean_query.split()
 
     # using tokens
-    # split_query = tokenize_strings(query)
+    split_query = tokenize_strings(clean_query)
 
-    # find results as a list comprehension
+    # find results as a list comprehension, remove comments to use
     search_results = [
-        movie["title"]
-        for movie in movies_dict["movies"]
-        if clean_query in movie["title"].translate(translation_table).lower()
+        # movie["title"]
+        # for movie in movies_dict["movies"]
+        # if clean_query in movie["title"].translate(translation_table).lower()
     ]
-    """
+
     # find results as a for loop
     for i in range(len(movies_dict["movies"])):
-        if query in movies_dict["movies"][i]["title"]:
-            search_results.append(movies_dict["movies"][i]["title"])
-    """
+        title_tokens = tokenize_strings(movies_dict["movies"][i]["title"])
+        for j in range(len(split_query)):
+            for k in range(len(title_tokens)):
+                if split_query[j] in title_tokens[k]:
+                    if movies_dict["movies"][i]["title"] in search_results:
+                        continue
+                    else:
+                        search_results.append(movies_dict["movies"][i]["title"])
+
     return search_results
 
 
