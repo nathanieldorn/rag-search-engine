@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import string
 
 
 def read_json() -> dict:
@@ -11,14 +12,41 @@ def read_json() -> dict:
     return movies_dict
 
 
+def tokenize_strings(string: str) -> list:
+    """Break strings into a list of single word tokens"""
+    split_string = string.split()
+    # create token list as a list comprehension
+    token_list = [token.lower() for token in split_string if token != ""]
+
+    """
+    # create token list with a for loop
+    token_list = []
+    for i in range(len(split_string)):
+        if split_string[i] == "":
+            continue
+        token_list.append(split_string[i])
+    """
+    return token_list
+
+
 def search_movies(movies_dict: dict, query: str) -> list:
     """Returns a list of movie titles from the json that contain the query string"""
-    # as a list comprehension
+    # create a table to remove all punctation from query and title strings
+    translation_table = str.maketrans("", "", string.punctuation)
+    clean_query = query.translate(translation_table).lower()
+    split_query = clean_query.split()
+
+    # using tokens
+    # split_query = tokenize_strings(query)
+
+    # find results as a list comprehension
     search_results = [
-        movie["title"] for movie in movies_dict["movies"] if query in movie["title"]
+        movie["title"]
+        for movie in movies_dict["movies"]
+        if clean_query in movie["title"].translate(translation_table).lower()
     ]
     """
-    # as a for loop
+    # find results as a for loop
     for i in range(len(movies_dict["movies"])):
         if query in movies_dict["movies"][i]["title"]:
             search_results.append(movies_dict["movies"][i]["title"])
@@ -29,6 +57,8 @@ def search_movies(movies_dict: dict, query: str) -> list:
 def print_results(results: list, limit: int) -> None:
     """Prints the results of a query to a defined limit"""
     x, i = 1, 0
+    if not results:
+        print("Nothing found.")
     while i < len(results) and i < limit:
         print(f"{x}. {results[i]}")
         x += 1
